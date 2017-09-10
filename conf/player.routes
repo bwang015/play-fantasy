@@ -1,0 +1,2 @@
+#Player Routes
+PUT			/:id			com.nbafantasy.controllers.PlayerController.putPlayerName(id: String)
