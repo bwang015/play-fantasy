@@ -35,7 +35,7 @@ public class PlayerService_T {
         this.dynamoDBService = new LocalDynamoDBService(dbConfig);
         this.dbService = new LocalDatabaseService(dynamoDBService);
         this.config = mock(Configuration.class);
-        this.playerService = new PlayerServiceImpl(config, dbService);
+        this.playerService = new PlayerServiceImpl(dbService);
     }
 
     @Test

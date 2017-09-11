@@ -7,4 +7,6 @@ import java.util.concurrent.CompletionStage;
  */
 public interface PlayerService {
     CompletionStage<Integer> createPlayerIDFromName(String id, String name);
+
+    CompletionStage<String> getPlayerIDFromName(String name);
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
+import com.nbafantasy.exception.ResourceAlreadyExistsException;
 import com.nbafantasy.injection.NBAInjector;
 import com.nbafantasy.service.PlayerService;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class PlayerController_T extends WithApplication {
         String name = "Kareem Abdul-Jabbar";
         String id = "abdulka01";
 
-        when(playerService.createPlayerIDFromName(any(), any())).thenReturn(CompletableFuture.completedFuture(200));
+        when(playerService.createPlayerIDFromName(id, name)).thenReturn(CompletableFuture.completedFuture(200));
         Result result = route(app, createRequest("PUT", "/player/" + id, name));
         assertEquals(Http.Status.CREATED, result.status());
     }
@@ -59,6 +60,17 @@ public class PlayerController_T extends WithApplication {
         Result result = route(app, createRequest("PUT", "/player/" + id, name));
         assertEquals(Http.Status.INTERNAL_SERVER_ERROR, result.status());
     }
+
+    @Test
+    public void testCreatePlayerIDFromNameAlreadyExists() throws IOException {
+        String name = "Clyde Drexler";
+        String id = "drexlcl01";
+
+        when(playerService.createPlayerIDFromName(id, name)).thenThrow(new ResourceAlreadyExistsException());
+        Result result = route(app, createRequest("PUT", "/player/" + id, name));
+        assertEquals(208, result.status());
+    }
+
 
     private Http.RequestBuilder createRequest(String method, String uri, String name) {
         Http.RequestBuilder request = fakeRequest(method, uri);

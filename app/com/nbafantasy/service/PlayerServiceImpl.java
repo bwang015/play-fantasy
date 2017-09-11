@@ -1,12 +1,15 @@
 package com.nbafantasy.service;
 
-import com.amazonaws.services.dynamodbv2.document.*;
-import com.nbafantasy.database.DatabaseService;
-import com.nbafantasy.util.Configuration;
+import java.util.concurrent.CompletionStage;
 
 import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.nbafantasy.database.DatabaseService;
+import com.nbafantasy.exception.ResourceAlreadyExistsException;
+import play.Logger;
+import play.mvc.Http;
+import play.mvc.Results;
 
 /**
  * Created by bwang on 9/9/17.
@@ -14,27 +17,32 @@ import java.util.concurrent.CompletionStage;
 public class PlayerServiceImpl implements PlayerService {
 
     private DatabaseService dbService;
-    private Configuration config;
 
     @Inject
-    public PlayerServiceImpl(Configuration config, DatabaseService dbService){
-        this.config = config;
+    public PlayerServiceImpl(DatabaseService dbService){
         this.dbService = dbService;
     }
 
     @Override
+    public CompletionStage<String> getPlayerIDFromName(String name) {
+        return dbService.getItem(name).thenApplyAsync(item -> {
+            if(item == null)
+                return null;
+            return item.getString("ID");
+        });
+    }
+
+    @Override
     public CompletionStage<Integer> createPlayerIDFromName(String id, String name) {
-        DynamoDB dynamoDB = dbService.getDynamoDBObject();
-        Table table = dynamoDB.getTable(config.getPlayerTable());
-        Item item = table.getItem(new PrimaryKey("ID", id));
-        if (item != null) {
-            return CompletableFuture.completedFuture(208); //Already exists
-        }
-        item = new Item()
-                .withPrimaryKey("ID", id)
-                .withString("Name", name);
-        PutItemOutcome result = table.putItem(item);
-        int status = result.getPutItemResult().getSdkHttpMetadata().getHttpStatusCode();
-        return CompletableFuture.completedFuture(status);
+        return dbService.putItem(id, name).thenApply(result -> {
+            int status = result.getPutItemResult().getSdkHttpMetadata().getHttpStatusCode();
+            return status;
+        }).exceptionally(throwable -> {
+            if(throwable.getCause() instanceof ResourceAlreadyExistsException) {
+                Logger.warn("Resource already exists!");
+                return 208; //Already exists
+            }
+            return Http.Status.INTERNAL_SERVER_ERROR;
+        });
     }
 }
