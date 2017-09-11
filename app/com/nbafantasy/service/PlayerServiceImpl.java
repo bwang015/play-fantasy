@@ -13,11 +13,14 @@ import java.util.concurrent.CompletionStage;
  */
 public class PlayerServiceImpl implements PlayerService {
 
-    @Inject
-    DatabaseService dbService;
+    private DatabaseService dbService;
+    private Configuration config;
 
     @Inject
-    Configuration config;
+    public PlayerServiceImpl(Configuration config, DatabaseService dbService){
+        this.config = config;
+        this.dbService = dbService;
+    }
 
     @Override
     public CompletionStage<Integer> createPlayerIDFromName(String id, String name) {

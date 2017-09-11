@@ -11,10 +11,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 
 @Singleton
 public class DynamoDBServiceImpl implements DynamoDBService {
-	
+
 	@Inject
 	DynamoDBServiceConfig dbConfig;
-	
+
 	private AmazonDynamoDBAsync dynamoClient;
 	private DynamoDBMapper modelMapper;
 
