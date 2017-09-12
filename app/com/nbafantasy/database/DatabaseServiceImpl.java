@@ -1,7 +1,6 @@
 package com.nbafantasy.database;
 
 import com.amazonaws.services.dynamodbv2.document.*;
-import com.nbafantasy.exception.ResourceAlreadyExistsException;
 import com.nbafantasy.util.Configuration;
 
 import javax.inject.Inject;
@@ -47,7 +46,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 		Item item = table.getItem(new PrimaryKey("ID", id));
 
 		if (item != null)
-			throw new ResourceAlreadyExistsException("Resource already exists!");
+			return CompletableFuture.completedFuture(null);
 
 		item = new Item()
 				.withPrimaryKey("ID", id)
