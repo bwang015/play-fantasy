@@ -3,6 +3,17 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
+#Open file containing player names
+file = open('players.txt', 'r')
+
+for line in file:
+    name = line
+    url = "http://localhost:9000/player"
+    headers = {'Content-Type': 'application/json'}
+    obj = {"name": name}
+    params = json.dumps(obj).encode('utf8')
+    r = requests.post(url, headers = headers, data = params)
+
 #Get the endpoint
 endpoint = "https://www.basketball-reference.com/players/d/duranke01/gamelog/2017"
 

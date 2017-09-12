@@ -4,12 +4,8 @@ import java.util.concurrent.CompletionStage;
 
 import javax.inject.Inject;
 
-import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.nbafantasy.database.DatabaseService;
-import com.nbafantasy.exception.ResourceAlreadyExistsException;
-import play.Logger;
-import play.mvc.Http;
-import play.mvc.Results;
 
 /**
  * Created by bwang on 9/9/17.
@@ -33,16 +29,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public CompletionStage<Integer> createPlayerIDFromName(String id, String name) {
-        return dbService.putItem(id, name).thenApply(result -> {
-            int status = result.getPutItemResult().getSdkHttpMetadata().getHttpStatusCode();
-            return status;
-        }).exceptionally(throwable -> {
-            if(throwable.getCause() instanceof ResourceAlreadyExistsException) {
-                Logger.warn("Resource already exists!");
-                return 208; //Already exists
-            }
-            return Http.Status.INTERNAL_SERVER_ERROR;
-        });
+    public CompletionStage<PutItemOutcome> createPlayerIDFromName(String id, String name) {
+        return dbService.putItem(id, name);
     }
 }

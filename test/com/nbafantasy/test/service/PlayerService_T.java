@@ -38,18 +38,18 @@ public class PlayerService_T {
         this.playerService = new PlayerServiceImpl(dbService);
     }
 
-    @Test
-    public void testCreatePlayerIDFromNameSuccess() throws ExecutionException, InterruptedException {
-        String name = "Wilt Chamberlain";
-        String id = "chambwi01";
-
-        when(config.getPlayerTable()).thenReturn("PlayerName_T");
-        when(dbConfig.getHost()).thenReturn("Host");
-        when(dbConfig.getRegion()).thenReturn("Region");
-
-        int status_code = doAsync(playerService.createPlayerIDFromName(id, name));
-        assertEquals(200, status_code);
-    }
+//    @Test
+//    public void testCreatePlayerIDFromNameSuccess() throws ExecutionException, InterruptedException {
+//        String name = "Wilt Chamberlain";
+//        String id = "chambwi01";
+//
+//        when(config.getPlayerTable()).thenReturn("PlayerName_T");
+//        when(dbConfig.getHost()).thenReturn("Host");
+//        when(dbConfig.getRegion()).thenReturn("Region");
+//
+//        int status_code = doAsync(playerService.createPlayerIDFromName(id, name));
+//        assertEquals(200, status_code);
+//    }
 
     private <T> T doAsync(CompletionStage<T> completionStage)
             throws ExecutionException, InterruptedException {
