@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
-import com.nbafantasy.exception.ResourceAlreadyExistsException;
 import com.nbafantasy.injection.NBAInjector;
 import com.nbafantasy.service.PlayerService;
 import org.junit.Test;
@@ -14,14 +13,12 @@ import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import play.test.WithApplication;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
@@ -55,25 +52,24 @@ public class PlayerController_T extends WithApplication {
         assertEquals(Http.Status.CREATED, result.status());
     }
 
-//    @Test
-//    public void testCreatePlayerIDFromNameFailure() throws IOException {
-//        String name = "Kobe Bryant";
-//        String id = "bryanko01";
-//
-//        when(playerService.createPlayerIDFromName(id, name)).thenReturn(CompletableFuture.completedFuture(400));
-//        Result result = route(app, createRequest("PUT", "/player/" + id, name));
-//        assertEquals(Http.Status.INTERNAL_SERVER_ERROR, result.status());
-//    }
-//
-//    @Test
-//    public void testCreatePlayerIDFromNameAlreadyExists() throws IOException {
-//        String name = "Clyde Drexler";
-//        String id = "drexlcl01";
-//
-//        when(playerService.createPlayerIDFromName(id, name)).thenThrow(new ResourceAlreadyExistsException());
-//        Result result = route(app, createRequest("PUT", "/player/" + id, name));
-//        assertEquals(208, result.status());
-//    }
+    @Test
+    public void testCreatePlayerIDFromNameFailure() throws IOException {
+        String name = ""; //Kobe Bryant
+        String id = "bryanko01";
+
+        Result result = route(app, createRequest("PUT", "/player/" + id, name));
+        assertEquals(Http.Status.BAD_REQUEST, result.status());
+    }
+
+    @Test
+    public void testCreatePlayerIDFromNameAlreadyExists() throws IOException {
+        String name = "Clyde Drexler";
+        String id = "drexlcl01";
+
+        when(playerService.createPlayerIDFromName(id, name)).thenReturn(CompletableFuture.completedFuture(null));
+        Result result = route(app, createRequest("PUT", "/player/" + id, name));
+        assertEquals(208, result.status());
+    }
 
     private Http.RequestBuilder createRequest(String method, String uri, String name) {
         Http.RequestBuilder request = fakeRequest(method, uri);
