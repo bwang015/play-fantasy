@@ -1,2 +1,2 @@
 #Upload Routes
-PUT			/player/:name			com.nbafantasy.controllers.UploadController.uploadPlayer(name: String)
+PUT			/player/:id			com.nbafantasy.controllers.UploadController.uploadPlayer(id: String)

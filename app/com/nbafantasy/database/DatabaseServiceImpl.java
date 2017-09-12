@@ -1,10 +1,13 @@
 package com.nbafantasy.database;
 
 import com.amazonaws.services.dynamodbv2.document.*;
+import com.amazonaws.services.dynamodbv2.document.internal.IteratorSupport;
 import com.nbafantasy.util.Configuration;
+import play.Logger;
 
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -34,10 +37,16 @@ public class DatabaseServiceImpl implements DatabaseService {
 		Map<String, String> expressionAttributeNames = new HashMap<String, String>();
 		expressionAttributeNames.put("#Name", "Name");
 
-		return CompletableFuture.completedFuture(table.scan("#Name = :name",
+		ItemCollection<ScanOutcome> items = table.scan("#Name = :name",
 				"ID",
 				expressionAttributeNames,
-				expressionAttributeValues).iterator().next());
+				expressionAttributeValues);
+
+		Iterator<Item> iterator = items.iterator();
+		if(iterator.hasNext())
+			return CompletableFuture.completedFuture(iterator.next());
+
+		return CompletableFuture.completedFuture(null);
 	}
 
 	@Override

@@ -71,6 +71,26 @@ public class PlayerController_T extends WithApplication {
         assertEquals(208, result.status());
     }
 
+    @Test
+    public void testGetIDFromPlayerNameSuccess() throws IOException {
+        String name = "Julius Erving";
+        String id = "ervinju01";
+
+        when(playerService.getPlayerIDFromName(name)).thenReturn(CompletableFuture.completedFuture(id));
+        Result result = route(app, createRequest("POST", "/player", name));
+        assertEquals(200, result.status());
+    }
+
+    @Test
+    public void testGetIDFromPlayerNameNotFound() throws IOException {
+        String name = "Steve Francis";
+        String id = "francst01";
+
+        when(playerService.getPlayerIDFromName(name)).thenReturn(CompletableFuture.completedFuture(null));
+        Result result = route(app, createRequest("POST", "/player", name));
+        assertEquals(404, result.status());
+    }
+
     private Http.RequestBuilder createRequest(String method, String uri, String name) {
         Http.RequestBuilder request = fakeRequest(method, uri);
         request.header("Content-Type", "application/json");
