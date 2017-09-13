@@ -2,6 +2,8 @@ package com.nbafantasy.database;
 
 import com.amazonaws.services.dynamodbv2.document.*;
 import com.amazonaws.services.dynamodbv2.document.internal.IteratorSupport;
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.nbafantasy.util.Configuration;
 import play.Logger;
 
@@ -28,7 +30,22 @@ public class DatabaseServiceImpl implements DatabaseService {
 	}
 
 	@Override
-	public CompletionStage<Item> getItem(String name) {
+	public CompletionStage<Item> getItemFromID(String id) {
+		Table table = getDynamoDBObject().getTable(config.getPlayerTable());
+		QuerySpec spec = new QuerySpec()
+				.withKeyConditionExpression("ID = :id")
+				.withValueMap(new ValueMap()
+						.withString(":id", id));
+
+		ItemCollection<QueryOutcome> items = table.query(spec);
+		Iterator<Item> iterator = items.iterator();
+		if(iterator.hasNext())
+			return CompletableFuture.completedFuture(iterator.next());
+		return CompletableFuture.completedFuture(null);
+	}
+
+	@Override
+	public CompletionStage<Item> getItemFromName(String name) {
 		Table table = getDynamoDBObject().getTable(config.getPlayerTable());
 
 		Map<String, Object> expressionAttributeValues = new HashMap<String, Object>();
