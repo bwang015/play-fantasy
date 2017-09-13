@@ -27,18 +27,24 @@ for name in file:
     table = soup.find_all("table", class_="row_summable sortable stats_table")[0]
 
     #Split the tables into rows and filter by active games
-    rows = table.findChildren("tr", id=True)
+    rows = table.findChildren("tr", class_=lambda x: x != 'thead')
 
     jsonArray = []
-    for row in rows:
+    for i in range(1, len(rows)):
+        row = rows[i]
         jsonObj = {}
         arr = list(row)
         jsonObj["Game Number"] = arr[0].text
-        jsonObj["Games Played"] = arr[1].text
         jsonObj["Date"] = arr[2].text
         jsonObj["Team"] = arr[4].text
         jsonObj["Away"] = arr[5].text
         jsonObj["Opponent"] = arr[6].text
+
+        if(arr[8].text == 'Did Not Play' or arr[8].text == 'Inactive'):
+            jsonArray.append(jsonObj)
+            continue
+
+        jsonObj["Games Played"] = arr[1].text
         jsonObj["Minutes Played"] = arr[9].text
         jsonObj["Field Goal Made"] = arr[10].text
         jsonObj["Field Goal Attempted"] = arr[11].text
@@ -58,7 +64,8 @@ for name in file:
         jsonArray.append(jsonObj)
 
     jsonArrayObject = json.dumps(jsonArray)
-    url = "http://localhost:9000/upload/player/" + id
-    headers = {'Content-Type': 'application/json'}
-    response = requests.put(url, headers = headers, data = jsonArrayObject)
-    print(response.status_code)
+    print(jsonArrayObject)
+    # url = "http://localhost:9000/upload/player/" + id
+    # headers = {'Content-Type': 'application/json'}
+    # response = requests.put(url, headers = headers, data = jsonArrayObject)
+    # print(response.status_code)
