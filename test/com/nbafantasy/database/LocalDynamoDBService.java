@@ -1,4 +1,4 @@
-package com.nbafantasy.test.database;
+package com.nbafantasy.database;
 
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
