@@ -1,4 +1,4 @@
-package com.nbafantasy.test.database;
+package com.nbafantasy.database;
 
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;

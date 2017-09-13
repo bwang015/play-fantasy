@@ -1,22 +1,18 @@
-package com.nbafantasy.test.service;
+package com.nbafantasy.service;
 
 import com.nbafantasy.database.DatabaseService;
 import com.nbafantasy.database.DynamoDBService;
 import com.nbafantasy.database.DynamoDBServiceConfig;
-import com.nbafantasy.service.PlayerService;
-import com.nbafantasy.service.PlayerServiceImpl;
-import com.nbafantasy.test.database.LocalDatabaseService;
-import com.nbafantasy.test.database.LocalDynamoDBService;
+import com.nbafantasy.database.LocalDatabaseService;
+import com.nbafantasy.database.LocalDynamoDBService;
 import com.nbafantasy.util.Configuration;
 import org.junit.Before;
-import org.junit.Test;
 
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by bwang on 9/10/17.

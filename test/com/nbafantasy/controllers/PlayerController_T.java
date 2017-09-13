@@ -1,4 +1,4 @@
-package com.nbafantasy.test.controllers;
+package com.nbafantasy.controllers;
 
 import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
