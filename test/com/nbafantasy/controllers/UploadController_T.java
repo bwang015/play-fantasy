@@ -1,4 +1,4 @@
-package com.nbafantasy.test.controllers;
+package com.nbafantasy.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
