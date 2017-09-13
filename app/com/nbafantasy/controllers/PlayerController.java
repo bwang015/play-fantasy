@@ -28,8 +28,6 @@ public class PlayerController extends Controller {
 		JsonNode jsonNode = request().body().asJson();
 		String name = jsonNode.get("name").asText();
 
-		System.out.println(name);
-
 		if(name == null || id == null || StringUtils.isEmpty(name))
 			return CompletableFuture.completedFuture(badRequest("Either name or id is empty in your request!"));
 

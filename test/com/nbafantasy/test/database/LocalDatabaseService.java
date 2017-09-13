@@ -31,7 +31,12 @@ public class LocalDatabaseService implements DatabaseService {
     }
 
     @Override
-    public CompletionStage<Item> getItem(String name) {
+    public CompletionStage<Item> getItemFromName(String name) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<Item> getItemFromID(String id) {
         return null;
     }
 

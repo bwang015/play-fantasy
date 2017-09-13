@@ -11,7 +11,9 @@ public interface DatabaseService {
 
 	CompletionStage<PutItemOutcome> putItem(String id, String name);
 
-	CompletionStage<Item> getItem(String name);
+	CompletionStage<Item> getItemFromName(String name);
+
+	CompletionStage<Item> getItemFromID(String id);
 	
 	DynamoDB getDynamoDBObject();
 }

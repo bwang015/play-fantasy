@@ -11,4 +11,6 @@ public interface PlayerService {
     CompletionStage<PutItemOutcome> createPlayerIDFromName(String id, String name);
 
     CompletionStage<String> getPlayerIDFromName(String name);
+
+    CompletionStage<String> getPlayerNameFromID(String id);
 }

@@ -21,10 +21,19 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public CompletionStage<String> getPlayerIDFromName(String name) {
-        return dbService.getItem(name).thenApplyAsync(item -> {
+        return dbService.getItemFromName(name).thenApply(item -> {
             if(item == null)
                 return null;
             return item.getString("ID");
+        });
+    }
+
+    @Override
+    public CompletionStage<String> getPlayerNameFromID(String id) {
+        return dbService.getItemFromID(id).thenApply(item -> {
+            if(item == null)
+                return null;
+            return item.getString("Name");
         });
     }
 

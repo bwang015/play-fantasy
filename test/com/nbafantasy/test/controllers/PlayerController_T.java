@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.nbafantasy.injection.NBAInjector;
 import com.nbafantasy.service.PlayerService;
+import com.nbafantasy.service.UploadService;
+import com.nbafantasy.service.UploadServiceImpl;
 import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -37,7 +39,8 @@ public class PlayerController_T extends WithApplication {
         playerService = mock(PlayerService.class);
         return new GuiceApplicationBuilder()
                 .configure("play.modules.disabled", Lists.newArrayList(NBAInjector.class.getName()))
-                .bindings(bind(PlayerService.class).toInstance(playerService))
+                .bindings(bind(PlayerService.class).toInstance(playerService),
+                        bind(UploadService.class).to(UploadServiceImpl.class))
                 .build();
     }
 
