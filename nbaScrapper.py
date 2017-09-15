@@ -64,8 +64,7 @@ for name in file:
         jsonArray.append(jsonObj)
 
     jsonArrayObject = json.dumps(jsonArray)
-    print(jsonArrayObject)
-    # url = "http://localhost:9000/upload/player/" + id
-    # headers = {'Content-Type': 'application/json'}
-    # response = requests.put(url, headers = headers, data = jsonArrayObject)
-    # print(response.status_code)
+    url = "http://localhost:9000/upload/player/" + id
+    headers = {'Content-Type': 'application/json'}
+    response = requests.put(url, headers = headers, data = jsonArrayObject)
+    print(response.status_code)

@@ -1,13 +1,14 @@
 package com.nbafantasy.database;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class DynamoDBServiceImpl implements DynamoDBService {
@@ -15,16 +16,24 @@ public class DynamoDBServiceImpl implements DynamoDBService {
 	@Inject
 	DynamoDBServiceConfig dbConfig;
 
+	private DynamoDB dynamoDB;
 	private AmazonDynamoDBAsync dynamoClient;
 	private DynamoDBMapper modelMapper;
+
+	@Override
+	public DynamoDB getDB() {
+		if(dynamoDB == null)
+			this.dynamoDB = new DynamoDB(getAsyncDynamoClient());
+		return dynamoDB;
+	}
 
 	@Override
 	public DynamoDBMapper getDBMapper() {
 		if(this.modelMapper != null)
 			return modelMapper;
 		
-		this.modelMapper = new DynamoDBMapper(getAsyncDynamoClient());
-		return this.modelMapper;
+		modelMapper = new DynamoDBMapper(getAsyncDynamoClient());
+		return modelMapper;
 	}
 
 	@Override

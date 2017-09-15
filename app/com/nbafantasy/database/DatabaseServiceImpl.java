@@ -1,11 +1,15 @@
 package com.nbafantasy.database;
 
-import com.amazonaws.services.dynamodbv2.document.*;
-import com.amazonaws.services.dynamodbv2.document.internal.IteratorSupport;
+import com.amazonaws.services.dynamodbv2.document.Item;
+import com.amazonaws.services.dynamodbv2.document.ItemCollection;
+import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
+import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.nbafantasy.util.Configuration;
-import play.Logger;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -14,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class DatabaseServiceImpl implements DatabaseService {
+public class DatabaseServiceImpl<T> implements DatabaseService {
 
 	@Inject
 	DynamoDBService dynamoDBService;
@@ -22,16 +26,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 	@Inject
 	Configuration config;
 
-	private DynamoDB dynamoDB;
-
-	@Override
-	public <T> void save(T model) {
-		dynamoDBService.getDBMapper().save(model);
-	}
-
 	@Override
 	public CompletionStage<Item> getItemFromID(String id) {
-		Table table = getDynamoDBObject().getTable(config.getPlayerTable());
+		Table table = dynamoDBService.getDB().getTable(config.getPlayerTable());
 		QuerySpec spec = new QuerySpec()
 				.withKeyConditionExpression("ID = :id")
 				.withValueMap(new ValueMap()
@@ -46,7 +43,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
 	@Override
 	public CompletionStage<Item> getItemFromName(String name) {
-		Table table = getDynamoDBObject().getTable(config.getPlayerTable());
+		Table table = dynamoDBService.getDB().getTable(config.getPlayerTable());
 
 		Map<String, Object> expressionAttributeValues = new HashMap<String, Object>();
 		expressionAttributeValues.put(":name", name);
@@ -68,7 +65,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
 	@Override
 	public CompletionStage<PutItemOutcome> putItem(String id, String name) {
-		Table table = getDynamoDBObject().getTable(config.getPlayerTable());
+		Table table = dynamoDBService.getDB().getTable(config.getPlayerTable());
 		Item item = table.getItem(new PrimaryKey("ID", id));
 
 		if (item != null)
@@ -78,12 +75,5 @@ public class DatabaseServiceImpl implements DatabaseService {
 				.withPrimaryKey("ID", id)
 				.withString("Name", name);
 		return CompletableFuture.completedFuture(table.putItem(item));
-	}
-
-	@Override
-	public DynamoDB getDynamoDBObject() {
-		if(dynamoDB == null)
-			this.dynamoDB = new DynamoDB(dynamoDBService.getAsyncDynamoClient());
-		return dynamoDB;
 	}
 }

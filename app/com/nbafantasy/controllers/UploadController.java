@@ -29,7 +29,7 @@ public class UploadController extends Controller {
 				return Results.internalServerError();
 			}
 
-			return Results.ok();
+			return Results.ok("Successfully added " + player.getId());
 		});
 	}
 }
