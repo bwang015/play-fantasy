@@ -1,10 +1,14 @@
 package com.nbafantasy.models;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+
 import java.util.Date;
 
 /**
  * Created by bwang on 9/12/17.
  */
+@DynamoDBTable(tableName = "player_info_data")
 public class PlayerInfo {
 
     private String id;
@@ -17,6 +21,7 @@ public class PlayerInfo {
         this.name = name;
     }
 
+    @DynamoDBHashKey
     public String getId() {
         return id;
     }

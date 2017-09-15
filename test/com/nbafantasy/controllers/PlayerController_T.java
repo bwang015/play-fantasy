@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
+import com.nbafantasy.database.DynamoDBService;
+import com.nbafantasy.database.DynamoDBServiceConfig;
+import com.nbafantasy.database.DynamoDBServiceConfigImpl;
+import com.nbafantasy.database.DynamoDBServiceImpl;
 import com.nbafantasy.injection.NBAInjector;
 import com.nbafantasy.service.PlayerService;
 import com.nbafantasy.service.UploadService;
@@ -40,7 +44,9 @@ public class PlayerController_T extends WithApplication {
         return new GuiceApplicationBuilder()
                 .configure("play.modules.disabled", Lists.newArrayList(NBAInjector.class.getName()))
                 .bindings(bind(PlayerService.class).toInstance(playerService),
-                        bind(UploadService.class).to(UploadServiceImpl.class))
+                        bind(UploadService.class).to(UploadServiceImpl.class),
+                        bind(DynamoDBService.class).to(DynamoDBServiceImpl.class),
+                        bind(DynamoDBServiceConfig.class).to(DynamoDBServiceConfigImpl.class))
                 .build();
     }
 

@@ -71,6 +71,17 @@ public class UploadController_T extends WithApplication {
         assertEquals(Http.Status.NOT_FOUND, result.status());
     }
 
+    @Test
+    public void testUploadPlayerSuccess() throws IOException {
+        String id = "hardaan01";
+        String name = "Anfernee Hardaway";
+
+        when(uploadService.parsePlayerGameInformation(any(), any())).thenReturn(CompletableFuture.completedFuture(new PlayerInfo(id, name)));
+
+        Result result = route(app, createRequest("PUT", "/upload/player/" + id, name));
+        assertEquals(Http.Status.OK, result.status());
+    }
+
     private Http.RequestBuilder createRequest(String method, String uri, String name) {
         Http.RequestBuilder request = fakeRequest(method, uri);
         request.header("Content-Type", "application/json");
