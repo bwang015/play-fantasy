@@ -29,6 +29,7 @@ for name in file:
     #Split the tables into rows and filter by active games
     rows = table.findChildren("tr", class_=lambda x: x != 'thead')
 
+    print("Parsing " + name)
     jsonArray = []
     for i in range(1, len(rows)):
         row = rows[i]
@@ -40,7 +41,11 @@ for name in file:
         jsonObj["Away"] = arr[5].text
         jsonObj["Opponent"] = arr[6].text
 
-        if(arr[8].text == 'Did Not Play' or arr[8].text == 'Inactive'):
+        if(arr[8].text == 'Did Not Play'
+           or arr[8].text == 'Inactive'
+           or arr[8].text == 'Did Not Dress'
+           or arr[8].text == 'Not With Team'
+           or arr[8].text == 'Player Suspended'):
             jsonArray.append(jsonObj)
             continue
 

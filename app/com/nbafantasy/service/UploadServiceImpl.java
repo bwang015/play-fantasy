@@ -74,10 +74,11 @@ public class UploadServiceImpl implements UploadService {
                     player.setTeamName(gameinfo.get("Team").asText()); //Sets the player with the last team they played for
                 }
 
-                if (player.setLastGameDate(convertDateFromString(gameinfo.get("Date").asText()))) {
-                    player.setGamesPlayed(gameStatistics.getGamesPlayed());
-                    player.setTotalPts(player.getTotalPts() + gameStatistics.getPts());
-                    player.setAvgPts(player.getTotalPts() / player.getGamesPlayed());
+                if (player.setLastGameDate(convertDateFromString(gameinfo.get("Date").asText()))) { //If games played == 0, then player DNP
+                    if(gameStatistics.getGamesPlayed() != 0)
+                        setAverageStats(player, gameStatistics);
+
+                    //Save Game statistics
                     gameService.save(gameStatistics, null);
                 }
             }
@@ -85,6 +86,48 @@ public class UploadServiceImpl implements UploadService {
             playerInfoService.save(player, null);
             return player;
         });
+    }
+
+    private void setAverageStats(PlayerInfo player, GameStatistics gameStatistics) {
+        //Set Games
+        player.setGamesPlayed(gameStatistics.getGamesPlayed());
+
+        //Set Points
+        player.setTotalPts(player.getTotalPts() + gameStatistics.getPts());
+        player.setAvgPts(player.getTotalPts() / player.getGamesPlayed());
+
+        //Set Rebounds
+        player.setTotalRebs(player.getTotalRebs() + gameStatistics.getDefReb() + gameStatistics.getOffReb());
+        player.setAvgRebs(player.getTotalRebs() / player.getGamesPlayed());
+
+        //Set Assists
+        player.setTotalAsts(player.getTotalAsts() + gameStatistics.getAssists());
+        player.setAvgAsts(player.getTotalAsts() / player.getGamesPlayed());
+
+        //Set Steals
+        player.setTotalStls(player.getTotalStls() + gameStatistics.getStls());
+        player.setAvgStls(player.getTotalStls() / player.getGamesPlayed());
+
+        //Set Blocks
+        player.setTotalBlks(player.getTotalBlks() + gameStatistics.getBlks());
+        player.setAvgBlks(player.getTotalBlks() / player.getGamesPlayed());
+
+        //Set Field Goals
+        player.setTotalFGA(player.getTotalFGA() + gameStatistics.getFga());
+        player.setTotalFGM(player.getTotalFGM() + gameStatistics.getFgm());
+        player.setFGP(player.getTotalFGM() / player.getTotalFGA());
+
+        //Set Free Throws
+        player.setTotalFTA(player.getTotalFTA() + gameStatistics.getFta());
+        player.setTotalFTM(player.getTotalFTM() + gameStatistics.getFtm());
+        player.setFTP(player.getTotalFTM() / player.getTotalFTA());
+
+        //Set 3 Pointers Made
+        player.setTotalTPM(player.getTotalTPM() + gameStatistics.getTpm());
+
+        //Set Turnovers
+        player.setTotalTO(player.getTotalTO() + gameStatistics.getTo());
+        player.setAvgTO(player.getTotalTO() / player.getGamesPlayed());
     }
 
     private Date convertDateFromString(String date) {

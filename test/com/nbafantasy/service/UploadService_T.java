@@ -103,8 +103,7 @@ public class UploadService_T {
         return arrayNode;
     }
 
-    private <T> T doAsync(CompletionStage<T> completionStage)
-            throws ExecutionException, InterruptedException {
+    private <T> T doAsync(CompletionStage<T> completionStage) throws ExecutionException, InterruptedException {
         return completionStage.toCompletableFuture().get();
     }
 }
