@@ -266,7 +266,7 @@ public class GameStatistics {
         this.name = name;
     }
 
-    @DynamoDBAttribute(attributeName = "PlayerID")
+    @DynamoDBAttribute(attributeName = "Name")
     public String getName() {
 
         return name;
