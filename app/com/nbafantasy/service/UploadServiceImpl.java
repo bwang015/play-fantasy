@@ -1,17 +1,16 @@
 package com.nbafantasy.service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbafantasy.database.DynamoDBService;
 import com.nbafantasy.database.ModelDBService;
 import com.nbafantasy.exception.ResourceNotFoundException;
 import com.nbafantasy.models.GameStatistics;
 import com.nbafantasy.models.PlayerInfo;
 import org.apache.commons.lang3.StringUtils;
-import play.libs.Json;
 
 import javax.inject.Inject;
 import java.text.DateFormat;
@@ -29,54 +28,62 @@ public class UploadServiceImpl implements UploadService {
 
     private PlayerInfoService playerInfoService;
     private PlayerService playerService;
+    private GameStatisticsService gameService;
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Inject
     public UploadServiceImpl(DynamoDBService dynamoDBService, PlayerService playerService) {
         playerInfoService = new PlayerInfoService(dynamoDBService);
+        gameService = new GameStatisticsService(dynamoDBService);
         this.playerService = playerService;
     }
 
     @Override
     public CompletionStage<PlayerInfo> parsePlayerGameInformation(JsonNode jsonNode, String id) {
-        return playerService.getPlayerNameFromID(id).thenCompose(name -> {
-            if (name == null)
+        Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
+        eav.put(":id", new AttributeValue().withS(id));
+
+        DynamoDBQueryExpression<PlayerInfo> queryExpression = new DynamoDBQueryExpression<PlayerInfo>()
+                .withKeyConditionExpression("ID = :id")
+                .withExpressionAttributeValues(eav)
+                .withLimit(1);   // player ids are unique, so this will always return at most 1 item
+
+        return playerInfoService.query(queryExpression).thenCombine(playerService.getPlayerNameFromID(id), (resultList, name) -> {
+            if(name == null)
                 throw new ResourceNotFoundException();
 
-            Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
-            eav.put(":id", new AttributeValue().withS(id));
-
-            DynamoDBQueryExpression<PlayerInfo> queryExpression = new DynamoDBQueryExpression<PlayerInfo>()
-                    .withKeyConditionExpression("ID = :id")
-                    .withExpressionAttributeValues(eav)
-                    .withLimit(1);   // player ids are unique, so this will always return at most 1 item
-
-            return playerInfoService.query(queryExpression).thenApply(resultList -> {
-                PlayerInfo player = resultList.isEmpty() ? new PlayerInfo(id, name) : resultList.get(0);
-                String team = player.getTeamName() == null ? "FA" : player.getTeamName(); //gets the latest team player played for
-                for (int i = 0; i < jsonNode.size(); i++) {
-                    JsonNode gameinfo = jsonNode.get(i);
-
-                    GameStatistics gameStatistics = Json.fromJson(gameinfo, GameStatistics.class);
-                    gameStatistics.setId(player.getId());
-                    gameStatistics.setName(player.getId());
-
-                    String lastTeam = gameinfo.get("Team").asText();
-
-                    if (!StringUtils.equals(team, lastTeam)) {
-                        team = gameinfo.get("Team").asText();
-                        player.setTeamName(gameinfo.get("Team").asText()); //Sets the player with the last team they played for
-                    }
-
-                    if (player.setLastGameDate(convertDateFromString(gameinfo.get("Date").asText()))) {
-                        //dynamodb.save gameStats
-                    }
+            PlayerInfo player = resultList.isEmpty() ? new PlayerInfo(id, name) : resultList.get(0);
+            String team = player.getTeamName() == null ? "FA" : player.getTeamName(); //gets the latest team player played for
+            for (int i = 0; i < jsonNode.size(); i++) {
+                JsonNode gameinfo = jsonNode.get(i);
+                GameStatistics gameStatistics = new GameStatistics();
+                try {
+                    gameStatistics = mapper.treeToValue(gameinfo, GameStatistics.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
                 }
-                DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
-                        .withExpectedEntry("ID", new ExpectedAttributeValue().withExists(false));
+                gameStatistics.setId(player.getId() + gameStatistics.getGameNumber());
+                gameStatistics.setName(player.getName());
+                gameStatistics.setDatePlayed(convertDateFromString(gameinfo.get("Date").asText()));
+                gameStatistics.setIsHome(gameinfo.get("Date").asText() != null ? true : false);
 
-//                playerInfoService.save(player, saveExpression);
-                return player;
-            });
+                String lastTeam = gameinfo.get("Team").asText();
+
+                if (!StringUtils.equals(team, lastTeam)) {
+                    team = gameinfo.get("Team").asText();
+                    player.setTeamName(gameinfo.get("Team").asText()); //Sets the player with the last team they played for
+                }
+
+                if (player.setLastGameDate(convertDateFromString(gameinfo.get("Date").asText()))) {
+                    player.setGamesPlayed(gameStatistics.getGamesPlayed());
+                    player.setTotalPts(player.getTotalPts() + gameStatistics.getPts());
+                    player.setAvgPts(player.getTotalPts() / player.getGamesPlayed());
+                    gameService.save(gameStatistics, null);
+                }
+            }
+
+            playerInfoService.save(player, null);
+            return player;
         });
     }
 
@@ -101,6 +108,19 @@ public class UploadServiceImpl implements UploadService {
         @Override
         protected Class<PlayerInfo> getClassType() {
             return PlayerInfo.class;
+        }
+    }
+
+    private static class GameStatisticsService extends ModelDBService<GameStatistics> {
+
+        @Inject
+        public GameStatisticsService(DynamoDBService dynamoDBService) {
+            super(dynamoDBService);
+        }
+
+        @Override
+        protected Class<GameStatistics> getClassType() {
+            return GameStatistics.class;
         }
     }
 }

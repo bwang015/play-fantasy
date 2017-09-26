@@ -1,6 +1,8 @@
 package com.nbafantasy.models;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
 import java.util.Date;
@@ -15,13 +17,20 @@ public class PlayerInfo {
     private String name;
     private String teamName;
     private Date last_game;
+    private double avgPts;
+    private double totalPts;
+    private double gamesPlayed;
+
+    public PlayerInfo(){
+        gamesPlayed = 0;
+    }
 
     public PlayerInfo(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    @DynamoDBHashKey
+    @DynamoDBHashKey(attributeName = "ID")
     public String getId() {
         return id;
     }
@@ -30,6 +39,7 @@ public class PlayerInfo {
         this.id = id;
     }
 
+    @DynamoDBAttribute(attributeName = "Name")
     public String getName() {
         return name;
     }
@@ -38,6 +48,7 @@ public class PlayerInfo {
         this.name = name;
     }
 
+    @DynamoDBAttribute(attributeName = "Team")
     public String getTeamName() {
         return teamName;
     }
@@ -46,6 +57,7 @@ public class PlayerInfo {
         this.teamName = teamName;
     }
 
+    @DynamoDBAttribute(attributeName = "Last Played Game")
     public Date getLastGameDate() {
         return last_game;
     }
@@ -61,5 +73,32 @@ public class PlayerInfo {
         }
 
         return false;
+    }
+
+    @DynamoDBAttribute(attributeName = "Avg PPG")
+    public double getAvgPts() {
+        return avgPts;
+    }
+
+    public void setAvgPts(double avgPts) {
+        this.avgPts = avgPts;
+    }
+
+    @DynamoDBAttribute(attributeName = "Total Points")
+    public double getTotalPts() {
+        return totalPts;
+    }
+
+    public void setTotalPts(double totalPts) {
+        this.totalPts = totalPts;
+    }
+
+    @DynamoDBAttribute(attributeName = "Games Played")
+    public double getGamesPlayed() {
+        return gamesPlayed;
+    }
+
+    public void setGamesPlayed(double gamesPlayed) {
+        this.gamesPlayed = gamesPlayed;
     }
 }

@@ -20,7 +20,7 @@ public class UploadController extends Controller {
 	public CompletionStage<Result> uploadPlayer(String id) {
 		JsonNode jsonNode = request().body().asJson();
 		return uploadService.parsePlayerGameInformation(jsonNode, id).handle((player, throwable) -> {
-			if(throwable != null){
+			if(throwable != null || player.getId() == null){
 				if(throwable.getCause() instanceof ResourceNotFoundException) {
 					Logger.error("Requested resource is not found!", throwable);
 					return Results.notFound();
