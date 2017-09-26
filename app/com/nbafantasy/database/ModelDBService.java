@@ -4,6 +4,7 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
+import com.nbafantasy.exception.DBException;
 import play.Logger;
 
 import javax.inject.Inject;
@@ -34,7 +35,7 @@ public abstract class ModelDBService<T> {
                 String message = "Failed to perform query on object "
                         + getClassType().getSimpleName();
                 Logger.error(message, ex);
-                return null;
+                throw new DBException(message, ex);
             }
         });
     }
@@ -47,6 +48,7 @@ public abstract class ModelDBService<T> {
                 String message = "Error encountered while saving object "
                         + model.getClass().getSimpleName();
                 Logger.error(message, ex);
+                throw new DBException(message, ex);
             }
         });
     }
